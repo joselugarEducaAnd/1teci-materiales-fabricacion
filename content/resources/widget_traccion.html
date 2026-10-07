@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ensayo de tracción</title>
+<style>
+/* Widget manipulable · Materiales y fabricación digital · Propiedades.
+   Autocontenido: sin red, sin dependencias, sin almacenamiento. Estilo Majuelo, chrome de la unidad.
+   Como la figura de la página, los ejes no llevan números: se aprende a leer la forma. */
+:root{--chrome:#8a4b2a;--chrome-osc:#66371e;--tinte:#f3ebe5;--linea:#e2d0c4;--txt:#2b211c;--gris:#6b625d;
+  --fragil:#285f73;--ductil:#8a4b2a;--tenaz:#8a7a1f;--marca:#b03a2e;--fuente:Verdana,'DejaVu Sans',Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--fuente);color:var(--txt);background:#fff;font-size:14px;line-height:1.45;padding:10px 12px 12px}
+h1{font-size:16px;color:var(--chrome-osc);margin:0 0 2px}
+.sub{color:var(--gris);font-size:12.5px;margin:0 0 10px}
+.fila-botones{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+button{font:inherit;font-size:13px;border:2px solid var(--chrome);background:#fff;color:var(--chrome-osc);border-radius:8px;padding:5px 10px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--chrome);color:#fff}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid #f0a72f;outline-offset:2px}
+.paneles{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:10px}
+.panel{border:1px solid var(--linea);border-radius:10px;background:#fffdfb;padding:6px}
+.panel h2{font-size:12.5px;margin:2px 4px 4px;color:var(--chrome-osc)}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--fuente)}
+.mandos{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 6px}
+.mandos label{font-weight:700;color:var(--chrome-osc);font-size:13px}
+.mandos input[type=range]{flex:1;min-width:140px;accent-color:var(--chrome)}
+.marcas{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;margin:4px 0 8px}
+.marcas label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.marcas input{accent-color:var(--chrome)}
+.lectura{padding:9px 11px;border-left:5px solid var(--chrome);background:var(--tinte);border-radius:6px;font-size:13px;min-height:58px}
+.comparar{margin-top:8px;font-size:12.5px}
+.comparar .fila{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:8px;margin:4px 0}
+.comparar .pista{height:14px;background:var(--tinte);border-radius:5px;overflow:hidden}
+.comparar .pista i{display:block;height:100%}
+@media (max-width:560px){.paneles{grid-template-columns:1fr}.comparar .fila{grid-template-columns:96px 1fr}}
+</style>
+</head>
+<body>
+<h1>¿Qué cuenta la curva de tracción?</h1>
+<p class="sub">Elige un comportamiento y estira la probeta. La curva se dibuja a la vez que la probeta se alarga.</p>
+
+<div class="fila-botones" role="group" aria-label="Comportamiento del material">
+  <button type="button" data-mat="0" aria-pressed="false">Rígido y frágil</button>
+  <button type="button" data-mat="1" aria-pressed="true">Resistente y dúctil</button>
+  <button type="button" data-mat="2" aria-pressed="false">Flexible y tenaz</button>
+  <button type="button" id="btnComparar" aria-pressed="false">Comparar los tres</button>
+</div>
+
+<div class="paneles">
+  <section class="panel"><h2>Probeta</h2><svg id="probeta" viewBox="0 0 340 170" role="img" aria-label="Probeta de tracción que se alarga, se estrecha y rompe según el material elegido"></svg></section>
+  <section class="panel"><h2>Curva tensión–deformación</h2><svg id="curva" viewBox="0 0 420 300" role="img" aria-label="Curva tensión–deformación del material elegido, sin valores numéricos en los ejes"></svg></section>
+</div>
+
+<div class="mandos">
+  <label for="estira">Estira</label>
+  <input id="estira" type="range" min="0" max="1000" value="0" aria-describedby="lectura">
+  <button type="button" id="btnPlay">▶ Ensayar</button>
+  <button type="button" id="btnSoltar">Soltar la carga</button>
+  <button type="button" id="btnReset">Reiniciar</button>
+</div>
+<div class="marcas" role="group" aria-label="Qué marcar en la curva">
+  <label><input type="checkbox" data-m="E" checked> pendiente (rigidez)</label>
+  <label><input type="checkbox" data-m="Y" checked> límite elástico</label>
+  <label><input type="checkbox" data-m="M" checked> resistencia máxima</label>
+  <label><input type="checkbox" data-m="R" checked> rotura</label>
+  <label><input type="checkbox" data-m="A"> área (tenacidad)</label>
+</div>
+<div class="lectura" id="lectura" role="status" aria-live="polite"></div>
+<div class="comparar" id="comparar" hidden></div>
+
+<script>
+(function(){
+  // Tres comportamientos, en unidades relativas (los ejes no llevan valores).
+  // Tramo elástico recto σ = E·ε hasta εy; endurecimiento hasta el máximo en εm; estricción hasta la rotura en εr.
+  var MAT=[
+    {n:"rígido y frágil",     c:"var(--fragil)", E:9.0, ey:0.080, em:0.095, sm:0.780, er:0.095, sr:0.780, cuello:0.00},
+    {n:"resistente y dúctil", c:"var(--ductil)", E:5.5, ey:0.090, em:0.500, sm:0.640, er:0.620, sr:0.560, cuello:0.45},
+    {n:"flexible y tenaz",    c:"var(--tenaz)",  E:2.25,ey:0.160, em:0.850, sm:0.550, er:1.000, sr:0.500, cuello:0.35}
+  ];
+  MAT.forEach(function(m){m.sy=m.E*m.ey;});
+  function sigma(m,e){
+    if(e<=m.ey) return m.E*e;
+    if(e<=m.em){var u=(e-m.ey)/(m.em-m.ey); return m.sy+(m.sm-m.sy)*(1-(1-u)*(1-u));}
+    var v=(e-m.em)/(m.er-m.em); return m.sm-(m.sm-m.sr)*v*v;
+  }
+  function area(m,e){var n=400,s=0,h=e/n;for(var k=0;k<n;k++){s+=h*(sigma(m,k*h)+sigma(m,(k+1)*h))/2;}return s;}
+  MAT.forEach(function(m){m.A=area(m,m.er);});
+
+  var NS="http://www.w3.org/2000/svg", cur=document.getElementById("curva"), pro=document.getElementById("probeta");
+  var X0=46,Y0=262,W=350,H=230,EMAX=1.05,SMAX=0.85;
+  function px(e){return X0+e/EMAX*W;} function py(s){return Y0-s/SMAX*H;}
+  function el(t,a,p){var x=document.createElementNS(NS,t);for(var k in a)x.setAttribute(k,a[k]);(p||cur).appendChild(x);return x;}
+  function txt(x,y,s,a,p){var t=el("text",Object.assign({x:x,y:y,"font-size":12,fill:"#2b211c"},a||{}),p);t.textContent=s;return t;}
+
+  var mat=1, e=0, comparar=false, soltado=null, anim=null;
+  var marcas={E:true,Y:true,M:true,R:true,A:false};
+
+  function camino(m,hasta){var d="",n=160;for(var k=0;k<=n;k++){var x=hasta*k/n;d+=(k?" L":"M")+px(x).toFixed(1)+","+py(sigma(m,x)).toFixed(1);}return d;}
+  function areaPath(m,hasta){return camino(m,hasta)+" L"+px(hasta).toFixed(1)+","+Y0+" L"+X0+","+Y0+" Z";}
+
+  function ejes(){
+    el("path",{d:"M"+X0+","+(Y0-H-8)+" V"+Y0+" H"+(X0+W+12),fill:"none",stroke:"#66371e","stroke-width":2});
+    el("path",{d:"M"+(X0-5)+","+(Y0-H)+" l5,-10 l5,10 z",fill:"#66371e"});
+    el("path",{d:"M"+(X0+W+8)+","+(Y0-5)+" l10,5 l-10,5 z",fill:"#66371e"});
+    txt(X0+W/2,Y0+26,"deformación",{"text-anchor":"middle","font-weight":700,fill:"#66371e","font-size":fs(12).toFixed(1)});
+    txt(16,Y0-H/2,"tensión",{"text-anchor":"middle","font-weight":700,fill:"#66371e","font-size":fs(12).toFixed(1),transform:"rotate(-90 16 "+(Y0-H/2)+")"});
+  }
+  // en pantallas estrechas el SVG se encoge: subimos la letra para que no baje de ~9,5 px reales
+  function fs(base){var w=cur.getBoundingClientRect().width||420;return Math.max(base,9.5*420/w);}
+  function etiqueta(x,y,s,anchor,col){txt(x,y,s,{"text-anchor":anchor||"start","font-size":fs(11.5).toFixed(1),fill:col||"#66371e"});}
+
+  function dibujaCurva(){
+    cur.textContent=""; ejes();
+    if(comparar){
+      MAT.forEach(function(m){
+        if(marcas.A) el("path",{d:areaPath(m,m.er),fill:m.c,"fill-opacity":0.14,stroke:"none"});
+        el("path",{d:camino(m,m.er),fill:"none",stroke:m.c,"stroke-width":3.5,"stroke-linecap":"round"});
+        cruz(px(m.er),py(m.sr),m.c);
+      });
+      etiqueta(px(0.10)+8,py(0.80),"rígido y frágil","start","#285f73");
+      etiqueta(px(0.36),py(0.66)-6,"resistente y dúctil","start","#8a4b2a");
+      etiqueta(px(0.98),py(0.42)+18,"flexible y tenaz","end","#6e6118");
+      return;
+    }
+    var m=MAT[mat], fin=Math.min(e,m.er);
+    if(marcas.A && fin>0) el("path",{d:areaPath(m,fin),fill:m.c,"fill-opacity":0.18,stroke:"none"});
+    el("path",{d:camino(m,m.er),fill:"none",stroke:"#d9cfc8","stroke-width":2,"stroke-dasharray":"4 5"});   // lo que queda por recorrer
+    if(fin>0) el("path",{d:camino(m,fin),fill:"none",stroke:m.c,"stroke-width":4,"stroke-linecap":"round"});
+    if(marcas.E){
+      el("path",{d:"M"+px(0)+","+py(0)+" L"+px(m.ey)+","+py(m.sy),stroke:"#b03a2e","stroke-width":2.2,"stroke-dasharray":"6 4",fill:"none"});
+      var xm=px(m.ey*0.5), ym=py(m.sy*0.5);
+      etiqueta(xm+8,ym+4,"pendiente = rigidez","start","#b03a2e");
+    }
+    if(marcas.Y){punto(px(m.ey),py(m.sy)); etiqueta(px(m.ey)+9,py(m.sy)+16,"límite elástico","start");}
+    if(marcas.M && m.em<m.er){punto(px(m.em),py(m.sm)); etiqueta(px(m.em),py(m.sm)-12,"resistencia máxima","middle");}
+    if((marcas.M||marcas.R) && m.em>=m.er){etiqueta(px(m.em)+12,py(m.sm)-4,"máximo = rotura","start","#b03a2e");}
+    if(marcas.R){cruz(px(m.er),py(m.sr),"#b03a2e"); if(m.em<m.er) etiqueta(px(m.er)+(m.er>0.9?-10:10),py(m.sr)+20,"rotura",m.er>0.9?"end":"start","#b03a2e");}
+    // descarga: paralela a la recta elástica
+    if(soltado){
+      el("path",{d:"M"+px(soltado.e0)+","+py(soltado.s0)+" L"+px(soltado.e)+","+py(soltado.s),stroke:"#2a7d4f","stroke-width":3,"stroke-dasharray":"7 4",fill:"none"});
+      if(soltado.fin && soltado.e>0.004){
+        el("path",{d:"M"+px(0)+","+(Y0-10)+" H"+px(soltado.e),stroke:"#2a7d4f","stroke-width":2,fill:"none"});
+        el("path",{d:"M"+px(0)+","+(Y0-15)+" v10 M"+px(soltado.e)+","+(Y0-15)+" v10",stroke:"#2a7d4f","stroke-width":2});
+        etiqueta(px(soltado.e/2),Y0-16,"deformación permanente","middle","#2a7d4f");
+      }
+      el("circle",{cx:px(soltado.e),cy:py(soltado.s),r:6,fill:"#2a7d4f"});
+    }else if(e>0 && e<m.er){
+      el("circle",{cx:px(fin),cy:py(sigma(m,fin)),r:6,fill:m.c,stroke:"#fff","stroke-width":2});
+    }
+  }
+  function punto(x,y){el("circle",{cx:x,cy:y,r:5.5,fill:"#fff",stroke:"#66371e","stroke-width":2.5});}
+  function cruz(x,y,c){el("path",{d:"M"+(x-7)+","+(y-7)+" l14,14 M"+(x+7)+","+(y-7)+" l-14,14",stroke:c,"stroke-width":3.5,"stroke-linecap":"round"});}
+
+  // Probeta con extremos de amarre; la zona útil se alarga (exagerado), se estrecha y rompe.
+  function dibujaProbeta(){
+    pro.textContent="";
+    if(comparar){txt(170,80,"Elige un material para ensayarlo",{"text-anchor":"middle","font-size":13,fill:"#6b625d"},pro);return;}
+    var m=MAT[mat], ee=soltado? soltado.e : Math.min(e,m.er), roto=!soltado && e>=m.er;
+    var L0=130, L=L0*(1+0.45*ee), w0=24, cx=170, cy=82, grip=26, hombro=11, gw=44;
+    var w=w0/Math.sqrt(1+0.45*ee), v=(!soltado && ee>m.em)? (ee-m.em)/(m.er-m.em) : (soltado&&soltado.e0>m.em? (soltado.e0-m.em)/(m.er-m.em):0);
+    var neck=m.cuello*Math.min(1,v)*(roto?1:0.85);
+    var xl=cx-L/2, xr=cx+L/2;
+    // mordazas
+    [[xl-hombro-grip-8,0],[xr+hombro+8,0]].forEach(function(g){
+      el("rect",{x:g[0],y:cy-gw/2-8,width:grip+8,height:gw+16,rx:4,fill:"#9aa0a6",stroke:"#3d4247","stroke-width":2},pro);
+    });
+    // contorno superior de la zona útil, con estricción gaussiana en el centro
+    function ancho(x){var t=(x-cx)/(L*0.11);return (w/2)*(1-neck*Math.exp(-t*t));}
+    var n=60, sup=[], inf=[];
+    for(var k=0;k<=n;k++){var x=xl+(xr-xl)*k/n; sup.push([x,cy-ancho(x)]); inf.push([x,cy+ancho(x)]);}
+    function mitad(desde,hasta,dx){
+      var pts=sup.filter(function(p){return p[0]>=desde&&p[0]<=hasta;}), pti=inf.filter(function(p){return p[0]>=desde&&p[0]<=hasta;}).reverse();
+      var gl=desde<cx, d="";
+      if(gl) d="M"+(xl-hombro-grip)+","+(cy-gw/2)+" H"+(xl-hombro)+" Q"+(xl-2)+","+(cy-gw/2)+" "+xl+","+(cy-w/2);
+      else d="M"+(pts[0][0]+dx)+","+(pts[0][1]);
+      pts.forEach(function(p){d+=" L"+(p[0]+dx).toFixed(1)+","+p[1].toFixed(1);});
+      if(!gl){d+=" Q"+(xr+2)+","+(cy-gw/2)+" "+(xr+hombro+dx)+","+(cy-gw/2)+" H"+(xr+hombro+grip+dx)+" V"+(cy+gw/2)+" H"+(xr+hombro+dx)+" Q"+(xr+2+dx)+","+(cy+gw/2)+" "+(xr+dx)+","+(cy+w/2);}
+      else {var u=pts[pts.length-1]; if(roto){ d+=fractura(u[0]+dx,true);} }
+      pti.forEach(function(p){d+=" L"+(p[0]+dx).toFixed(1)+","+p[1].toFixed(1);});
+      if(gl) d+=" L"+xl+","+(cy+w/2)+" Q"+(xl-2)+","+(cy+gw/2)+" "+(xl-hombro)+","+(cy+gw/2)+" H"+(xl-hombro-grip)+" Z";
+      else { if(roto) d+=fractura(pts[0][0]+dx,false); d+=" Z"; }
+      el("path",{d:d,fill:"#c9ccd1",stroke:"#3d4247","stroke-width":2,"stroke-linejoin":"round"},pro);
+    }
+    function fractura(x,izq){
+      var hl=ancho(cx)*1.02, f=MAT[mat], s="";
+      if(f.cuello===0) return " L"+x+","+(cy+hl);                     // frágil: corte plano
+      var z=izq?[[3,-0.6],[-3,-0.2],[4,0.2],[-2,0.6],[0,1]]:[[0,1],[-2,0.6],[4,0.2],[-3,-0.2],[3,-0.6]]; // dúctil: borde desgarrado
+      if(!izq) z=z.reverse();
+      z.forEach(function(p){s+=" L"+(x+p[0])+","+(cy+p[1]*hl);});
+      return s;
+    }
+    if(roto){var gap=MAT[mat].cuello===0?10:16; mitad(xl,cx,-gap/2); mitad(cx,xr,gap/2);}
+    else{
+      // pieza entera
+      var d="M"+(xl-hombro-grip)+","+(cy-gw/2)+" H"+(xl-hombro)+" Q"+(xl-2)+","+(cy-gw/2)+" "+xl+","+(cy-w/2);
+      sup.forEach(function(p){d+=" L"+p[0].toFixed(1)+","+p[1].toFixed(1);});
+      d+=" Q"+(xr+2)+","+(cy-gw/2)+" "+(xr+hombro)+","+(cy-gw/2)+" H"+(xr+hombro+grip)+" V"+(cy+gw/2)+" H"+(xr+hombro)+" Q"+(xr+2)+","+(cy+gw/2)+" "+xr+","+(cy+w/2);
+      inf.slice().reverse().forEach(function(p){d+=" L"+p[0].toFixed(1)+","+p[1].toFixed(1);});
+      d+=" Q"+(xl-2)+","+(cy+gw/2)+" "+(xl-hombro)+","+(cy+gw/2)+" H"+(xl-hombro-grip)+" Z";
+      el("path",{d:d,fill:"#c9ccd1",stroke:"#3d4247","stroke-width":2,"stroke-linejoin":"round"},pro);
+    }
+    // longitud inicial (referencia) y flechas de tracción
+    el("path",{d:"M"+(cx-L0/2)+",146 H"+(cx+L0/2)+" M"+(cx-L0/2)+",141 v10 M"+(cx+L0/2)+",141 v10",stroke:"#6b625d","stroke-width":1.5,fill:"none"},pro);
+    txt(cx,163,"longitud inicial",{"text-anchor":"middle","font-size":11,fill:"#6b625d"},pro);
+    if(!roto && !(soltado&&soltado.fin)){
+      [[xl-hombro-grip-12,-1],[xr+hombro+grip+12,1]].forEach(function(f){
+        el("path",{d:"M"+(f[0]-f[1]*2)+","+cy+" h"+(f[1]*16)+" m0,-6 l"+(f[1]*8)+",6 l"+(-f[1]*8)+",6",stroke:"#b03a2e","stroke-width":3,fill:"none","stroke-linejoin":"round"},pro);
+      });
+    }
+  }
+
+  function lee(){
+    var r=document.getElementById("lectura"), m=MAT[mat];
+    if(comparar){
+      r.innerHTML="<strong>Los tres juntos.</strong> El más <em>rígido</em> es el de pendiente más empinada; el más <em>resistente</em>, el que llega más alto; el más <em>dúctil</em>, el que se estira más antes de romper; el más <em>tenaz</em>, el que encierra más área.";
+      return;
+    }
+    if(soltado){
+      r.innerHTML=soltado.e0<=m.ey+1e-9?
+        "<strong>Zona elástica:</strong> al soltar, la probeta vuelve a su longitud por la misma recta. No queda deformación.":
+        "<strong>Zona plástica:</strong> al soltar, la descarga va <em>paralela</em> a la recta elástica y no llega al origen: la probeta queda más larga. Esa diferencia es la deformación permanente.";
+      return;
+    }
+    if(e<=0){r.innerHTML="Mueve el control <strong>Estira</strong> o pulsa <strong>Ensayar</strong>.";return;}
+    if(e>=m.er){
+      r.innerHTML=[
+        "<strong>Rotura casi sin deformación plástica:</strong> rompe de golpe, sin estrecharse y sin avisar. Muy poca área bajo la curva: absorbe poca energía.",
+        "<strong>Rotura tras mucha deformación plástica:</strong> antes de romper se estrecha en un punto y avisa. Tensión alta y bastante área bajo la curva.",
+        "<strong>Rotura muy tarde:</strong> se ha estirado mucho con tensiones moderadas. Es la curva que encierra más área: la que más energía absorbe."][mat];
+      return;
+    }
+    if(e<=m.ey){r.innerHTML="<strong>Zona elástica:</strong> tensión y deformación crecen en proporción, por eso la curva es una recta. Si sueltas ahora, la probeta recupera su longitud.";return;}
+    if(e<=m.em){r.innerHTML="<strong>Zona plástica:</strong> pasado el límite elástico, parte del alargamiento ya no se recupera. Para seguir estirando hay que tirar cada vez más fuerte, hasta la resistencia máxima.";return;}
+    r.innerHTML="<strong>Estricción:</strong> pasada la resistencia máxima, la probeta se estrecha en un punto y la tensión que se necesita para seguir estirando baja. La rotura está cerca.";
+  }
+
+  function compara(){
+    var c=document.getElementById("comparar");
+    c.hidden=!comparar; if(!comparar) return;
+    var max=Math.max.apply(null,MAT.map(function(m){return m.A;}));
+    c.innerHTML="<strong>Energía absorbida hasta la rotura</strong> (área bajo cada curva, comparada con la mayor):"+
+      MAT.slice().sort(function(a,b){return b.A-a.A;}).map(function(m){
+        return '<div class="fila"><span>'+m.n+'</span><div class="pista"><i style="width:'+(m.A/max*100).toFixed(1)+'%;background:'+m.c+'"></i></div></div>';
+      }).join("");
+  }
+  function todo(){dibujaCurva();dibujaProbeta();lee();compara();
+    document.getElementById("btnSoltar").disabled=comparar||e<=0||e>=MAT[mat].er||!!soltado;
+    document.getElementById("estira").disabled=comparar;
+    document.getElementById("btnPlay").disabled=comparar;}
+
+  var rng=document.getElementById("estira");
+  function fijaE(v){var m=MAT[mat];e=Math.max(0,Math.min(1,v))*m.er; rng.value=Math.round(e/m.er*1000);}
+  rng.addEventListener("input",function(){para();soltado=null;e=(+rng.value/1000)*MAT[mat].er;todo();});
+  function para(){if(anim){cancelAnimationFrame(anim);anim=null;document.getElementById("btnPlay").textContent="▶ Ensayar";}}
+  document.getElementById("btnPlay").addEventListener("click",function(){
+    if(anim){para();return;}
+    soltado=null; if(e>=MAT[mat].er) e=0;
+    var b=this; b.textContent="❚❚ Pausa"; var t0=null, e0=e/MAT[mat].er, T=7000;
+    function paso(t){if(t0===null)t0=t; var f=e0+(t-t0)/T; fijaE(f); todo(); if(f<1) anim=requestAnimationFrame(paso); else para();}
+    anim=requestAnimationFrame(paso);
+  });
+  document.getElementById("btnSoltar").addEventListener("click",function(){
+    para(); var m=MAT[mat], s0=sigma(m,e), ep=e-s0/m.E; soltado={e0:e,s0:s0,e:e,s:s0,fin:false};
+    var t0=null,T=1100;
+    function paso(t){if(t0===null)t0=t; var f=Math.min(1,(t-t0)/T);
+      soltado.s=s0*(1-f); soltado.e=Math.max(0,e-(s0-soltado.s)/m.E); if(f>=1){soltado.e=Math.max(0,ep);soltado.fin=true;}
+      todo(); if(f<1) requestAnimationFrame(paso);}
+    requestAnimationFrame(paso);
+  });
+  document.getElementById("btnReset").addEventListener("click",function(){para();soltado=null;e=0;rng.value=0;todo();});
+  document.querySelectorAll("[data-mat]").forEach(function(b){b.addEventListener("click",function(){
+    para();comparar=false;soltado=null;mat=+b.dataset.mat;e=0;rng.value=0;
+    document.querySelectorAll("[data-mat]").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});
+    document.getElementById("btnComparar").setAttribute("aria-pressed","false");todo();});});
+  document.getElementById("btnComparar").addEventListener("click",function(){
+    para();comparar=!comparar;soltado=null;this.setAttribute("aria-pressed",String(comparar));
+    if(comparar){marcas.A=true;document.querySelector('[data-m="A"]').checked=true;}
+    document.querySelectorAll("[data-mat]").forEach(function(x){x.setAttribute("aria-pressed",String(!comparar&&+x.dataset.mat===mat));});
+    todo();});
+  document.querySelectorAll("[data-m]").forEach(function(c){c.addEventListener("change",function(){marcas[c.dataset.m]=c.checked;todo();});});
+  todo();
+  window.addEventListener("resize",function(){dibujaCurva();});
+  window.__traccion={mat:MAT,sigma:sigma,area:area,estado:function(){return {mat:mat,e:e,soltado:soltado,comparar:comparar};},
+    fija:function(i,f){mat=i;comparar=false;soltado=null;fijaE(f);todo();}};
+})();
+</script>
+</body>
+</html>
