@@ -2,17 +2,17 @@
 <html lang="es" id="exe-20260807102711PAGE04">
 <head>
 <meta charset="utf-8">
-<meta name="generator" content="eXeLearning v4.0.3">
+<meta name="generator" content="eXeLearning v4.0.6">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="exe-pass-score" content="5">
 <title>Filamento y fabricación FFF | Materiales y fabricación digital</title>
 <link rel="icon" type="image/x-icon" href="../libs/favicon.ico">
 <meta name="description" content="Propiedades, selección de materiales y fabricación digital mediante impresión 3D.">
-<script>document.querySelector("html").classList.add("js");</script><script src="../libs/jquery/jquery.min.js"> </script><script src="../libs/common_i18n.js"> </script><script src="../libs/common.js"> </script><script src="../libs/exe_export.js"> </script><script>window.exeXapi={"odeId":"20260807102711SDA04","packageTitle":"Materiales y fabricación digital","language":"es"};</script><script src="../libs/xapi/exe_xapi.js"> </script><script src="../libs/bootstrap/bootstrap.bundle.min.js"> </script><link rel="stylesheet" href="../libs/bootstrap/bootstrap.min.css">
+<script>document.querySelector("html").classList.add("js");</script><script src="../libs/jquery/jquery.min.js"> </script><script src="../libs/common_i18n.js"> </script><script src="../libs/common.js"> </script><script src="../libs/exe_export.js"> </script><script src="../libs/bootstrap/bootstrap.bundle.min.js"> </script><link rel="stylesheet" href="../libs/bootstrap/bootstrap.min.css">
 <script src="../idevices/text/text.js"></script><link rel="stylesheet" href="../idevices/text/text.css">
 <script src="../idevices/classify/classify.js"></script><link rel="stylesheet" href="../idevices/classify/classify.css">
 <script src="../libs/jquery-ui/jquery-ui.min.js"> </script>
-<link rel="stylesheet" href="../content/css/base.css"><script src="../theme/style.js"> </script>
-<script src="../theme/zzz-majuelo.js"> </script><link rel="stylesheet" href="../theme/style.css"><link rel="stylesheet" href="../theme/zzz-majuelo.css">
+<link rel="stylesheet" href="../content/css/base.css"><script src="../theme/style.js"> </script><script src="../theme/zzz-majuelo.js"> </script><link rel="stylesheet" href="../theme/style.css"><link rel="stylesheet" href="../theme/zzz-majuelo.css">
 </head>
 <body class="exe-export exe-web-site">
 <script>document.body.className+=" js"</script>
@@ -96,6 +96,18 @@ compuestos cuya matriz es termoplástica. Un termoestable curado no vuelve a fun
 útil para recordar que un material puede comportarse como elastómero y, a la vez, procesarse
 como termoplástico.</p>
 <div class="marco marco-teoria"><p class="marco-titulo">Qué debes comprender y saber usar</p><p><strong>Vocabulario de proceso:</strong> filamento entra → extrusor empuja → boquilla deposita → aparece un cordón → varios cordones forman una capa → las capas crean la pieza. Si una de esas uniones es débil, la pieza puede resistir de forma distinta según la dirección.</p></div>
+<h4 style="clear: both;">La impresora por dentro</h4>
+<p>Aquí tienes una impresora de filamento cortada para ver su interior. Recorre los seis pasos con <strong>◀ Paso</strong> y <strong>Paso ▶</strong> y fíjate en el estado del material en cada uno: sólido en la bobina y en el extrusor, se ablanda y se funde en el bloque calefactor y se solidifica al salir de la boquilla. Con <strong>Ampliar el hotend</strong> ves la zona fría y la caliente por dentro; con <strong>▼ Capa</strong> y <strong>Capa ▲</strong> vas capa a capa; con <strong>Nombres</strong> salen los nombres de las piezas y con <strong>Maximizar</strong> la ves a pantalla completa. Las temperaturas son orientativas: las de verdad están en la etiqueta de la bobina.</p>
+<iframe class="sda04-impresora" src="../content/resources/impresora_3d_fff.html" title="Figura interactiva: impresora 3D de filamento cortada por dentro, con los seis pasos del material de la bobina a la pieza, el hotend ampliado y la pieza capa a capa" width="100%" height="1300" loading="lazy" allow="fullscreen" style="display: block; clear: both; width: 100%; max-width: 1120px; margin: 1rem auto; border: 0; border-radius: 14px; background: #ffffff;" allowfullscreen></iframe>
+<div class="marco marco-actividad"><p class="marco-titulo">Actividad · La impresora por dentro</p>
+<ol>
+<li>¿En qué zona pasa el filamento de sólido a fundido? ¿Para qué sirve la barrera térmica?</li>
+<li>En la figura, el filamento entra a unos 1,9 mm/s y la boquilla deposita a 50 mm/s. ¿Cómo puede salir el material más rápido de lo que entra?</li>
+<li>¿Cuánto ha bajado la cama al terminar la capa 12? ¿Y al acabar la pieza?</li>
+</ol>
+<p><strong>Resultados:</strong> 1) En el bloque calefactor; la barrera térmica separa la zona fría de la caliente para que el filamento no se ablande antes de tiempo. 2) Porque el volumen se conserva: el filamento de 1,75 mm es mucho más grueso que el cordón, y el caudal es el mismo a los dos lados (Q ≈ 0,45 · 0,20 · 50 = 4,5 mm³/s). 3) 2,40 mm al terminar la capa 12; 6,00 mm al acabar la pieza.</p>
+</div>
+<script>(function(){function ajusta(){var fs=document.querySelectorAll("iframe.sda04-impresora");for(var i=0;i<fs.length;i++){var f=fs[i];if(!f.getBoundingClientRect().width)continue;try{var d=f.contentDocument,b=d&&d.body;if(!b)continue;if(d.fullscreenElement||d.webkitFullscreenElement)continue;var h=Math.ceil(b.getBoundingClientRect().height+16);if(h>300&&Math.abs(h-f.clientHeight)>4)f.style.height=h+"px";}catch(e){}}}document.addEventListener("click",function(){setTimeout(ajusta,120);setTimeout(ajusta,600);},true);window.addEventListener("load",function(){ajusta();setTimeout(ajusta,400);});window.addEventListener("resize",function(){setTimeout(ajusta,200);});setInterval(ajusta,1000);})();</script>
 <h3>Materiales de filamento: una comparación después de entender el proceso</h3>
 <table class="tabla-datos"><thead><tr><th>Filamento</th><th>Familia y rasgos útiles</th><th>Limitaciones que hay que comprobar</th></tr></thead><tbody>
 <tr><td>PLA</td><td>termoplástico poliéster; suele ser rígido, imprimir con poco alabeo y dar buen detalle</td><td>impacto, humedad, temperatura de servicio y ruta real de fin de vida</td></tr>
