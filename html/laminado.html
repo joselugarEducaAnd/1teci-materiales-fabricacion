@@ -90,14 +90,8 @@ paredes; el <strong>relleno</strong> ocupa parte del interior; los <strong>sopor
 sostienen zonas que quedarían en el aire. El archivo final, llamado <strong>G-code</strong>,
 contiene las órdenes de movimiento, temperatura y extrusión para una máquina concreta.</p>
 <div class="marco marco-teoria"><p class="marco-titulo">Qué debes comprender y saber usar</p><p><strong>Acción observable:</strong> cargas el STL → lo colocas → lo divides en capas → recorres la previsualización → comparas tiempo y material → exportas un G-code que yo valido. Reconocer qué dibuja cada trayectoria es más importante que memorizar un color de pantalla.</p></div>
-<p>Abre <a href="https://grid.space/kiri/" target="_blank" rel="noopener">Kiri:Moto</a> en modo FDM. En el diálogo de
-máquinas, elige <strong>Prusa.mini</strong>.</p>
-<p>El nombre chocará, porque no es nuestra impresora. Kiri:Moto trae una lista cerrada de
-máquinas y la nuestra no está en ella, así que se usa la que más se le parece: su bandeja
-mide 180 × 180 mm frente a los 175 × 175 de la nuestra, y coincide en lo que de verdad
-condiciona el laminado, la boquilla de 0,4 mm y el filamento de 1,75 mm. Comprueba siempre
-que tu pieza queda holgada dentro de la bandeja: esa comprobación vale más que el nombre
-del perfil.</p>
+<p>Abre <a href="https://grid.space/kiri/" target="_blank" rel="noopener">Kiri:Moto</a> en modo FDM e importa el <strong>perfil del centro</strong>: un archivo que le dice al laminador cómo es nuestra impresora, la Creality K1. Después, en <strong>Machine</strong>, elige <strong>Majuelo K1</strong> y comprueba que en <strong>Profile</strong> pone <strong>Majuelo.K1</strong>. Los pasos, con capturas, están en la ficha <a href="https://joselugareducaand.github.io/creality-k1-majuelo/" target="_blank" rel="noopener">Imprimir en la Creality K1 del taller</a>; hay que repetirlos en cada sesión, porque los ordenadores del aula no guardan el perfil.</p>
+<p>El perfil fija lo que condiciona el laminado: el volumen útil de la K1 (una bandeja de 220 × 220 mm y 250 mm de altura), la boquilla de 0,4 mm, el filamento de 1,75 mm y las órdenes con las que arranca la máquina. Comprueba siempre que tu pieza queda holgada dentro de la bandeja.</p>
 <p>El G-code que exportes queda ligado a esa máquina y a ese perfil: no se reutiliza en otra
 impresora sin volver a laminar.</p>
 <div class="mapa-flujo" role="img" aria-label="Flujo de Kiri:Moto: Arrange, Slice, Preview y Export"><span>Arrange</span><b>→</b><span>Slice</span><b>→</b><span>Preview</span><b>→</b><span>Export</span><b>→</b><span>Mi validación</span></div>
@@ -126,14 +120,14 @@ de capa de 0,20 mm y velocidad de 50 mm/s, <strong>Q ≈ 0,45 · 0,20 · 50 = 4,
 mm³/s</strong>. Q es el volumen aproximado que debe salir cada segundo.</p><p>El cálculo no autoriza
 a cambiar el perfil: muestra por qué subir velocidad, altura y ancho a la vez puede pedir más
 material fundido del que el hotend entrega de forma estable.</p></div>
-<div class="marco marco-nota"><p class="marco-titulo">No improvises el perfil de máquina</p><p>Puedes comparar decisiones de proceso, pero no cambies volumen, extrusor, retracción ni G-code de inicio y final. Esos valores pertenecen al perfil validado.</p></div>
+<div class="marco marco-nota"><p class="marco-titulo">No improvises el perfil de máquina</p><p>Puedes comparar decisiones de proceso, pero no cambies volumen, extrusor, retracción ni G-code de inicio y final. Esos valores pertenecen al perfil validado. Tampoco sirve otra máquina de la lista, ni siquiera la «Creality.K1» que trae Kiri:Moto: con ella el archivo sale sin la orden <code>M83</code> y la impresora deja de extruir a los pocos minutos.</p></div>
 <h3>Preview: la predicción que hay que inspeccionar</h3>
 <p>La previsualización permite recorrer capas y distinguir paredes, relleno, soportes y
 movimientos sin extrusión. Se buscan capas aisladas, huecos, trayectorias en el aire, zonas con
 un solo perímetro, soportes inaccesibles y cambios extraños de velocidad. El tiempo y masa son
 estimaciones: sirven para comparar si el perfil y el material están bien configurados, no como
 medidas exactas.</p>
-<div class="marco marco-actividad"><p class="marco-titulo">Práctica y evidencia</p><ol><li>Comprueba escala y cara de apoyo.</li><li>Compara dos alturas de capa o dos rellenos, manteniendo lo demás.</li><li>Revisa en Preview la primera capa, paredes, relleno, puentes, soportes y movimientos.</li><li>Registra tiempo, masa estimada y elección final.</li><li>Exporta con el código de pieza y la máquina de destino.</li><li>Envíame el archivo para que lo valide; no inicies una impresión.</li></ol><p>Guarda la ficha de parámetros y una captura de Preview para <strong>Prototipo impreso en 3D</strong>.</p></div>
+<div class="marco marco-actividad"><p class="marco-titulo">Práctica y evidencia</p><ol><li>Comprueba escala y cara de apoyo.</li><li>Compara dos alturas de capa o dos rellenos, manteniendo lo demás.</li><li>Revisa en Preview la primera capa, paredes, relleno, puentes, soportes y movimientos.</li><li>Registra tiempo, masa estimada y elección final.</li><li>Exporta con el código de pieza y la máquina de destino.</li><li>Abre el archivo .gcode con el editor de texto, busca <code>START_PRINT</code> con Ctrl + F y comprueba que justo debajo hay una línea que dice <code>M83</code> (paso 5 de la ficha). Si falta, el archivo no vale: vuelve a laminar con el perfil del centro.</li><li>Envíame el archivo para que lo valide; no inicies una impresión.</li></ol><p>Guarda la ficha de parámetros y una captura de Preview para <strong>Prototipo impreso en 3D</strong>.</p></div>
 </section>
 </div>
 </div>
