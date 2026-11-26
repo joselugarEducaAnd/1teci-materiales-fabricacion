@@ -78,7 +78,7 @@
 <section class="level2" id="s8-seleccion-tecnica">
 <h2>S8 · Selección técnica: de la función a una matriz trazable</h2>
 <div class="marco marco-teoria"><p class="marco-titulo">Qué necesitas decidir</p><p>¿Cómo descartar candidatos inviables y comparar los restantes sin esconder los supuestos de la decisión?</p></div>
-<div class="microcaso"><h3>Caso conductor · soporte de un sensor de aula</h3><p>Queremos fabricar
+<div class="microcaso"><h3>Caso guía · soporte de un sensor de aula</h3><p>Queremos fabricar
 un soporte pequeño mediante FFF. Debe soportar golpes ocasionales, pesar poco, imprimirse de
 forma fiable con los medios del centro y durar varios cursos. Compararemos tres filamentos
 posibles: PLA, PETG y ABS. La matriz no aparece todavía: antes debemos convertir el problema
@@ -92,28 +92,29 @@ compensa incumplir un requisito obligatorio.</p>
 <tr><td>«Debe ser ligero»</td><td>masa de la pieza ≤ 40 g con la geometría definida</td><td>volumen CAD × densidad, o masa medida</td></tr>
 <tr><td>«Debe resistir»</td><td>deformación ≤ 1 mm bajo 100 N en la dirección indicada</td><td>ensayo o cálculo con geometría y condiciones</td></tr>
 <tr><td>«Debe aguantar calor»</td><td>mantener función durante el tiempo previsto a la temperatura máxima de servicio</td><td>ficha de la calidad y validación del componente</td></tr>
-<tr><td>«Debe ser sostenible»</td><td>comparar la misma unidad funcional, vida útil, masa, reparación y fin de vida</td><td>datos con límites y escenario declarados</td></tr>
+<tr><td>«Debe ser sostenible»</td><td>comparar opciones que cumplan la misma función durante el mismo tiempo (por ejemplo, «sujetar el sensor durante tres cursos»), con su masa, su reparación y su fin de vida</td><td>datos con límites y escenario declarados</td></tr>
 </tbody></table>
 <h3>2. Generar candidatos y asegurar comparabilidad</h3>
 <p>No se eligen candidatos solo porque sean conocidos. Se genera una lista razonable, se
 descartan los que incumplen obligatorios y se documenta para cada dato: calidad concreta,
-unidad, método, temperatura, orientación y fuente. No compares la resistencia de una probeta
-inyectada con la de una pieza FFF en Z como si fueran el mismo dato.</p>
+unidad, método, temperatura, orientación y fuente. La resistencia de la ficha se mide con
+piezas macizas fabricadas por inyección: una pieza impresa, sobre todo si la carga intenta
+separar sus capas, aguantará bastante menos. No los compares como si fueran el mismo dato.</p>
 <h3>3. Normalizar y ponderar</h3>
 <p>Una matriz no suma directamente gramos, euros y MPa. Cada criterio se transforma a una
-escala común con reglas escritas. Un ejemplo de anclajes es: 1 = insuficiente o muy alejado del
+escala común con reglas escritas. Las reglas que dicen qué significa cada nota se llaman <strong>anclajes</strong>. Por ejemplo: 1 = insuficiente o muy alejado del
 objetivo; 3 = cumple de forma aceptable; 5 = desempeño claramente favorable. Cuando menor es
 mejor —masa o coste—, la regla debe invertir el sentido.</p>
-<p>En el caso conductor usamos una escala de 1 a 5. Los valores son didácticos: antes de
-emplearlos en un informe real habría que justificarlos con la ficha de la calidad concreta y
-con pruebas comparables.</p>
+<p>En el caso guía usamos una escala de 1 a 5. Las notas son orientativas, a partir de fichas
+típicas de cada filamento (densidad: PLA 1,24 g/cm³, PETG 1,27 g/cm³, ABS 1,04 g/cm³); en un
+informe real habría que justificarlas con la ficha de la bobina concreta y con pruebas comparables.</p>
 <table class="tabla-datos"><thead><tr><th>Criterio</th><th>Peso</th><th>PLA (A)</th><th>PETG (B)</th><th>ABS (C)</th><th>Evidencia y anclaje</th></tr></thead><tbody>
-<tr><td>Impacto o fallo brusco</td><td>30 %</td><td>4</td><td>3</td><td>5</td><td>ficha o ensayo comparable; 3 = nivel mínimo aceptado</td></tr>
-<tr><td>Masa de la pieza</td><td>20 %</td><td>3</td><td>5</td><td>2</td><td>volumen común y densidad; 5 = menor masa</td></tr>
-<tr><td>Fabricación disponible</td><td>30 %</td><td>5</td><td>2</td><td>3</td><td>medios, seguridad y tasa de éxito del proceso</td></tr>
-<tr><td>Durabilidad y reparación</td><td>20 %</td><td>3</td><td>4</td><td>4</td><td>ambiente, unión, mantenimiento y vida prevista</td></tr>
+<tr><td>Impacto o fallo brusco</td><td>30 %</td><td>2</td><td>4</td><td>5</td><td>ficha o ensayo comparable; 3 = nivel mínimo aceptado</td></tr>
+<tr><td>Masa de la pieza</td><td>20 %</td><td>3</td><td>3</td><td>5</td><td>volumen común y densidad; 5 = menor masa</td></tr>
+<tr><td>Fabricación disponible</td><td>30 %</td><td>5</td><td>4</td><td>2</td><td>medios, seguridad y tasa de éxito del proceso</td></tr>
+<tr><td>Durabilidad y reparación</td><td>20 %</td><td>2</td><td>4</td><td>3</td><td>ambiente, unión, mantenimiento y vida prevista</td></tr>
 </tbody></table>
-<div class="marco marco-formula"><p class="marco-titulo">Puntuación ponderada</p><p><strong>Total = Σ (peso × puntuación)</strong>. Σ significa «sumar todos los términos». Los pesos se expresan como fracción y deben sumar 1,00.</p><span class="formula-linea">PLA: 0,30·4 + 0,20·3 + 0,30·5 + 0,20·3 = 3,90</span><span class="formula-linea">PETG: 0,30·3 + 0,20·5 + 0,30·2 + 0,20·4 = 3,30</span><span class="formula-linea">ABS: 0,30·5 + 0,20·2 + 0,30·3 + 0,20·4 = 3,60</span><p>Con estos supuestos gana PLA. El total organiza la decisión; no convierte puntuaciones razonadas en propiedades físicas.</p></div>
+<div class="marco marco-formula"><p class="marco-titulo">Puntuación ponderada</p><p><strong>Total = Σ (peso × puntuación)</strong>. Σ significa «sumar todos los términos». Los pesos se expresan como fracción y deben sumar 1,00.</p><span class="formula-linea">PLA: 0,30·2 + 0,20·3 + 0,30·5 + 0,20·2 = 3,10</span><span class="formula-linea">PETG: 0,30·4 + 0,20·3 + 0,30·4 + 0,20·4 = 3,80</span><span class="formula-linea">ABS: 0,30·5 + 0,20·5 + 0,30·2 + 0,20·3 = 3,70</span><p>Con estos supuestos gana PETG, aunque por poco sobre ABS. El total organiza la decisión; no convierte puntuaciones razonadas en propiedades físicas.</p></div>
 <h3>4. Comprobar sensibilidad y decidir</h3>
 <p>Repite el cálculo cambiando un peso o una puntuación dentro de un intervalo plausible. Si
 una modificación pequeña cambia el ganador, la decisión es <strong>poco robusta</strong>:
@@ -121,8 +122,8 @@ conviene obtener un dato mejor, ensayar o mantener una alternativa. Si el orden 
 la conclusión es más estable frente a esa incertidumbre.</p>
 <p>Compruébalo tú: mueve los pesos y mira cómo cambian las puntuaciones. Los botones cargan los dos repartos de este apartado.</p><iframe class="sda04-matriz" src="../content/resources/widget_matriz_pesos.html" title="Matriz de decisión con pesos ajustables: puntuaciones ponderadas de PLA, PETG y ABS y aviso de decisión frágil" width="100%" height="1450" loading="lazy" style="display: block; width: 100%; max-width: 980px; margin: 1rem auto; border: 1px solid #e2d0c4; border-radius: 12px; background: #ffffff;"></iframe><script>(function(){function ajusta(){var fs=document.querySelectorAll("iframe.sda04-matriz");for(var i=0;i<fs.length;i++){var f=fs[i];if(!f.getBoundingClientRect().width)continue;try{var d=f.contentDocument,b=d&&d.body;if(!b)continue;var h=Math.ceil(b.getBoundingClientRect().height+16);if(h>300&&Math.abs(h-f.clientHeight)>4)f.style.height=h+"px";}catch(e){}}}document.addEventListener("click",function(){setTimeout(ajusta,120);setTimeout(ajusta,600);},true);window.addEventListener("load",function(){ajusta();setTimeout(ajusta,400);});setInterval(ajusta,1000);})();</script><p>Las mismas puntuaciones, dos repartos de peso distintos y <strong>gana un candidato diferente</strong>. Eso no significa que la matriz falle: significa que la decisión dependía de un supuesto, el de cuánto importa el impacto, y ahora ese supuesto está a la vista. Comprobar la sensibilidad sirve justo para esto: si mover un peso dentro de lo razonable cambia el resultado, la decisión es frágil y conviene conseguir un dato mejor antes de cerrarla.</p><div class="microcaso"><h3>Ejemplo de sensibilidad</h3><p>Si el soporte pasara a recibir
 golpes frecuentes, podríamos subir el peso de impacto de 30 % a 45 % y bajar el de facilidad
-de fabricación de 30 % a 15 %. Con las mismas puntuaciones, PLA obtendría 3,75; PETG, 3,45;
-y ABS, 3,90. Cambia el ganador.</p><p>La conclusión no es «ABS siempre es mejor», sino que la
+de fabricación de 30 % a 15 %. Con las mismas puntuaciones, PLA obtendría 2,65; PETG, 3,80;
+y ABS, 4,15. Cambia el ganador.</p><p>La conclusión no es «ABS siempre es mejor», sino que la
 decisión depende mucho de cómo se defina el servicio. Haría falta comprobar además si la
 impresora, su recinto y la ventilación permiten fabricarlo con seguridad.</p></div>
 <div class="microcaso"><h3>Error frecuente · puntuar primero y justificar después</h3><p>Si

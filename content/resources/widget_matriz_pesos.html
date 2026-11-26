@@ -80,7 +80,7 @@ td.crit{font-weight:700;color:var(--chrome-osc)}
 (function(){
   var CRIT=["Impacto o fallo brusco","Masa de la pieza","Fabricación disponible","Durabilidad y reparación"];
   var CAND=["PLA","PETG","ABS"], COL=["var(--a)","var(--b)","var(--c)"];
-  var P=[[4,3,5],[3,5,2],[5,2,3],[3,4,4]];          // P[criterio][candidato], tabla de la página
+  var P=[[2,4,5],[3,3,5],[5,4,2],[2,4,3]];          // P[criterio][candidato], tabla de la página
   var PRESETS=[[30,20,30,20],[45,20,15,20],[25,25,25,25]];
   var w=PRESETS[0].slice();                            // pesos en puntos porcentuales (múltiplos de 5)
   var cuerpo=document.getElementById("cuerpo"), sliders=[];
